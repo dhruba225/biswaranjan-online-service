@@ -75,7 +75,9 @@ export function generateInvoice(data: InvoiceData) {
     // Footer
     doc.setFontSize(10);
     doc.setTextColor(100, 116, 139);
-    doc.text("Thank you for your business!", 14, finalY + 40);
+    doc.text("Thanks for Coming", 14, finalY + 40);
+    doc.text("Biswaranjan Behera", 14, finalY + 46);
+    doc.text("83398 27082", 14, finalY + 52);
 
     // Trigger Save
     doc.save(`Invoice_${data.customerName.replace(/\s+/g, "_")}_${new Date().getTime()}.pdf`);

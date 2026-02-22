@@ -4,8 +4,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Search, Loader2, User as UserIcon, Calendar, IndianRupee } from "lucide-react";
+import { Search, Loader2, User as UserIcon, Calendar, IndianRupee, Download } from "lucide-react";
 import { toast } from "sonner";
+import { generateInvoice } from "@/lib/pdf";
 
 type Service = {
     id: string;
@@ -171,9 +172,29 @@ export default function SearchCustomerPage() {
                                             <li key={service.id} className="p-6 hover:bg-slate-50/50 transition-colors">
                                                 <div className="flex justify-between items-start mb-2">
                                                     <h4 className="font-medium text-lg text-slate-900">{service.description}</h4>
-                                                    <span className="inline-flex items-center rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-                                                        {service.status}
-                                                    </span>
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="inline-flex items-center rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                                                            {service.status}
+                                                        </span>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() => generateInvoice({
+                                                                customerName: selectedCustomer.fullName,
+                                                                mobileNumber: selectedCustomer.mobileNumber,
+                                                                address: selectedCustomer.address || undefined,
+                                                                services: [{
+                                                                    description: service.description,
+                                                                    amount: service.amount.toString(),
+                                                                    serviceDate: service.serviceDate,
+                                                                    acknowledgementNumber: service.acknowledgementNumber || "-"
+                                                                }]
+                                                            })}
+                                                            className="h-7 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 border border-slate-200 shadow-sm"
+                                                        >
+                                                            <Download className="h-3.5 w-3.5 mr-1.5" /> PDF
+                                                        </Button>
+                                                    </div>
                                                 </div>
                                                 <div className="flex gap-6 mt-4 text-sm text-slate-500">
                                                     <div className="flex items-center">

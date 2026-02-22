@@ -5,12 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, IndianRupee, FilterX } from "lucide-react";
+import { Loader2, IndianRupee, FilterX, Download } from "lucide-react";
 import { toast } from "sonner";
+import { generateInvoice } from "@/lib/pdf";
 
 type Customer = {
     fullName: string;
     mobileNumber: string;
+    address: string | null;
 };
 
 type Service = {
@@ -173,6 +175,7 @@ export default function AllServicesPage() {
                                         <th className="px-6 py-4 font-medium">Description</th>
                                         <th className="px-6 py-4 font-medium">Ack No.</th>
                                         <th className="px-6 py-4 font-medium text-right">Amount</th>
+                                        <th className="px-6 py-4 font-medium text-center">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
@@ -184,6 +187,26 @@ export default function AllServicesPage() {
                                             <td className="px-6 py-4 text-slate-500">{service.description}</td>
                                             <td className="px-6 py-4 text-slate-500">{service.acknowledgementNumber || "-"}</td>
                                             <td className="px-6 py-4 text-right font-medium text-indigo-700">₹{service.amount.toFixed(2)}</td>
+                                            <td className="px-6 py-4 text-center">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => generateInvoice({
+                                                        customerName: service.customer.fullName,
+                                                        mobileNumber: service.customer.mobileNumber,
+                                                        address: service.customer.address || undefined,
+                                                        services: [{
+                                                            description: service.description,
+                                                            amount: service.amount.toString(),
+                                                            serviceDate: service.serviceDate,
+                                                            acknowledgementNumber: service.acknowledgementNumber || "-"
+                                                        }]
+                                                    })}
+                                                    className="text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50"
+                                                >
+                                                    <Download className="h-4 w-4 mr-1" /> PDF
+                                                </Button>
+                                            </td>
                                         </tr>
                                     ))}
                                     {/* Total Row */}
@@ -192,6 +215,7 @@ export default function AllServicesPage() {
                                         <td className="px-6 py-4 text-right text-indigo-700">
                                             ₹{services.reduce((acc, curr) => acc + curr.amount, 0).toFixed(2)}
                                         </td>
+                                        <td></td>
                                     </tr>
                                 </tbody>
                             </table>

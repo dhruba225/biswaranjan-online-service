@@ -191,17 +191,25 @@ export default function AllServicesPage() {
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
-                                                    onClick={() => generateInvoice({
-                                                        customerName: service.customer.fullName,
-                                                        mobileNumber: service.customer.mobileNumber,
-                                                        address: service.customer.address || undefined,
-                                                        services: [{
-                                                            description: service.description,
-                                                            amount: service.amount.toString(),
-                                                            serviceDate: service.serviceDate,
-                                                            acknowledgementNumber: service.acknowledgementNumber || "-"
-                                                        }]
-                                                    })}
+                                                    onClick={() => {
+                                                        // Group all services for this customer on this specific day
+                                                        const sameDayServices = services.filter(s =>
+                                                            s.customer.mobileNumber === service.customer.mobileNumber &&
+                                                            new Date(s.serviceDate).toDateString() === new Date(service.serviceDate).toDateString()
+                                                        );
+
+                                                        generateInvoice({
+                                                            customerName: service.customer.fullName,
+                                                            mobileNumber: service.customer.mobileNumber,
+                                                            address: service.customer.address || undefined,
+                                                            services: sameDayServices.map(s => ({
+                                                                description: s.description,
+                                                                amount: s.amount.toString(),
+                                                                serviceDate: s.serviceDate,
+                                                                acknowledgementNumber: s.acknowledgementNumber || "-"
+                                                            }))
+                                                        });
+                                                    }}
                                                     className="text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50"
                                                 >
                                                     <Download className="h-4 w-4 mr-1" /> PDF

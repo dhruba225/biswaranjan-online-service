@@ -11,15 +11,20 @@ export async function GET(req: Request) {
     }
 
     const { searchParams } = new URL(req.url);
-    const mobile = searchParams.get("mobile");
+    const q = searchParams.get("q");
 
-    if (!mobile) {
-        return NextResponse.json({ message: "Mobile number required" }, { status: 400 });
+    if (!q) {
+        return NextResponse.json({ message: "Search query required" }, { status: 400 });
     }
 
     try {
-        const customer = await prisma.customer.findUnique({
-            where: { mobileNumber: mobile },
+        const customers = await prisma.customer.findMany({
+            where: {
+                OR: [
+                    { mobileNumber: { contains: q } },
+                    { fullName: { contains: q } },
+                ]
+            },
             include: {
                 services: {
                     orderBy: { serviceDate: "desc" }
@@ -27,7 +32,7 @@ export async function GET(req: Request) {
             }
         });
 
-        return NextResponse.json({ customer });
+        return NextResponse.json({ customers });
     } catch (error) {
         console.error("Error searching customer:", error);
         return NextResponse.json({ message: "Internal server error" }, { status: 500 });

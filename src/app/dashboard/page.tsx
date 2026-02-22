@@ -2,12 +2,20 @@ import prisma from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { IndianRupee, TrendingUp, Users } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 async function getDashboardData() {
     const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    // Total Lifetime Revenue
-    const totalRevenueAgg = await prisma.service.aggregate({
+    // Total Income Today
+    const dailyRevenueAgg = await prisma.service.aggregate({
+        where: {
+            serviceDate: {
+                gte: startOfDay,
+            },
+        },
         _sum: {
             amount: true,
         },
@@ -40,7 +48,7 @@ async function getDashboardData() {
     });
 
     return {
-        lifetimeRevenue: totalRevenueAgg._sum.amount || 0,
+        dailyRevenue: dailyRevenueAgg._sum.amount || 0,
         monthlyRevenue: monthlyRevenueAgg._sum.amount || 0,
         totalCustomers,
         recentServices,
@@ -57,24 +65,24 @@ export default async function DashboardPage() {
                 <p className="text-slate-500 mt-2">Overview of all services and financial insights.</p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
                 <Card className="shadow-sm border-slate-200">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-slate-600">Total Income This Month</CardTitle>
-                        <TrendingUp className="h-4 w-4 text-indigo-600" />
+                        <CardTitle className="text-sm font-medium text-slate-600">Daily Income</CardTitle>
+                        <TrendingUp className="h-4 w-4 text-emerald-600" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-slate-900">₹{data.monthlyRevenue.toFixed(2)}</div>
+                        <div className="text-3xl font-bold text-slate-900">₹{data.dailyRevenue.toFixed(2)}</div>
                     </CardContent>
                 </Card>
 
                 <Card className="shadow-sm border-slate-200">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-slate-600">Total Lifetime Revenue</CardTitle>
+                        <CardTitle className="text-sm font-medium text-slate-600">Monthly Income</CardTitle>
                         <IndianRupee className="h-4 w-4 text-indigo-600" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-slate-900">₹{data.lifetimeRevenue.toFixed(2)}</div>
+                        <div className="text-3xl font-bold text-slate-900">₹{data.monthlyRevenue.toFixed(2)}</div>
                     </CardContent>
                 </Card>
 
